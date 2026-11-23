@@ -1,0 +1,210 @@
+# ASSR Sentinel
+
+Plateforme Python de supervision, d'analyse de journaux et de gestion des incidents de sécurité.
+
+Projet de synthèse – Licence professionnelle ASSR – Remise et soutenance : **7 décembre**.
+
+## Équipe
+
+| Membre | Responsabilité principale |
+|---|---|
+| _Prénom Nom_ | Inventaire, configuration, CLI/menu, intégration (F1, F6) |
+| _Prénom Nom_ | Journaux SSH et règles de détection R1/R2 (F3) |
+| _Prénom Nom_ | Supervision, incidents, sauvegarde et rapports (F2, F4, F5) |
+
+> Chaque membre contribue aux tests, à l'intégration et à la documentation.
+
+## Présentation
+
+ASSR Sentinel est une application en **ligne de commande** destinée à un client qui exploite un petit parc de serveurs et de postes. Elle permet de :
+
+- charger et valider un **inventaire** de machines (CSV ou JSON) ;
+- exécuter une **supervision simulée** des services TCP (UP / DOWN / ERROR) ;
+- **analyser des journaux SSH** et détecter des comportements suspects (règles R1 et R2) ;
+- créer des **alertes**, les convertir en **incidents** et suivre leur statut ;
+- **sauvegarder** les incidents en JSON et **exporter** des rapports (CSV, JSON, TXT).
+
+Les modules d'analyse, d'incidents et de rapports fonctionnent **sans accès Internet**.
+
+## Prérequis
+
+- Python **3.11 ou supérieur**
+- Windows, Linux ou macOS
+- Aucune dépendance externe (bibliothèque standard uniquement) : `json`, `csv`, `pathlib`, `argparse`, `datetime`, `logging`, `unittest`, etc.
+
+## Installation
+
+```bash
+git clone https://github.com/ZeroDayTom/Sentinel.git
+cd Sentinel
+```
+
+Environnement virtuel (facultatif mais recommandé) :
+
+```bash
+python -m venv .venv
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+# Linux / macOS
+source .venv/bin/activate
+```
+
+## Lancement
+
+```bash
+python main.py
+```
+
+Un menu s'affiche :
+
+```
+1. Charger et valider l'inventaire
+2. Exécuter une supervision simulée
+3. Analyser les journaux SSH
+4. Consulter et mettre à jour les incidents
+5. Exporter les rapports
+0. Quitter
+```
+
+> _À adapter si une interface par commandes (`argparse`) est ajoutée : documenter ici chaque commande et ses options._
+
+## Structure du dépôt
+
+```
+Sentinel/
+├── main.py            # Point d'entrée (menu console)
+├── config.json        # Seuils d'alerte, chemins, options
+├── README.md
+├── LICENSE
+├── src/
+│   ├── inventory.py   # F1 : chargement et validation de l'inventaire
+│   ├── supervision.py # F2 : supervision simulée
+│   ├── logs.py        # F3 : parsing SSH, règles R1/R2
+│   ├── incidents.py   # F4 : alertes et incidents
+│   └── rapports.py    # F5 : sauvegarde et exports
+├── data/              # Jeux de données fictifs
+├── tests/             # Tests automatisés (unittest)
+├── out/               # Rapports générés
+└── docs/              # Documentation technique, plan de tests
+```
+
+## Configuration (`config.json`)
+
+Le fichier de configuration permet de changer les seuils **sans modifier le code**.
+
+```json
+{
+  "paths": {
+    "inventory": "data/inventaire.json",
+    "scenarios": "data/scenarios.json",
+    "logs": ["data/auth.log"],
+    "incidents": "out/incidents.json",
+    "output_dir": "out"
+  },
+  "rules": {
+    "R1": { "max_failures": 5, "window_minutes": 10 },
+    "R2": { "min_failures": 3, "window_minutes": 10 }
+  }
+}
+```
+
+> _Adapter cet exemple à la structure réellement retenue par l'équipe._
+
+## Formats de données
+
+### Inventaire
+
+Chaque machine possède : un identifiant unique, un nom, une adresse IPv4 valide, un environnement (`production` ou `test`) et une liste de services TCP (nom, port, délai maximal).
+
+```json
+{
+  "id": "srv-01",
+  "name": "web-01",
+  "ip": "192.168.1.10",
+  "environment": "production",
+  "services": [
+    { "name": "ssh", "port": 22, "timeout": 2 },
+    { "name": "http", "port": 80, "timeout": 2 }
+  ]
+}
+```
+
+### Scénarios de supervision
+
+Fichier JSON associant à chaque service (date, machine, port) un résultat `UP`, `DOWN` ou `ERROR`. Le fichier peut être remplacé sans changer le code.
+
+### Journaux SSH
+
+Fichiers texte contenant des connexions réussies et échouées. Plusieurs formats de lignes sont acceptés ; les lignes non reconnues sont **comptabilisées** et non supprimées.
+
+> _Documenter ici les formats de lignes réellement gérés._
+
+## Règles de détection
+
+| Règle | Description | Paramètres |
+|---|---|---|
+| **R1** | N échecs de connexion depuis une même IP en M minutes | `max_failures`, `window_minutes` |
+| **R2** | Connexion réussie après au moins N échecs, pour le même compte et la même IP, dans M minutes | `min_failures`, `window_minutes` |
+
+- La détection se base sur les **horodatages**, pas sur l'ordre des lignes du fichier.
+- **Déduplication** : _à compléter avec la méthode retenue (ex. clé = règle + IP + compte + fenêtre)_, afin qu'une seconde analyse des mêmes événements ne crée pas d'alertes en double.
+
+## Incidents
+
+Une alerte (identifiant, règle, date, IP, gravité, description) peut être convertie en incident.
+
+Cycle de vie autorisé :
+
+```
+OPEN  →  IN_PROGRESS  →  RESOLVED
+```
+
+Les transitions interdites et les identifiants inexistants sont refusés avec un message clair. Chaque incident conserve sa date de création et sa date de dernière modification. Les incidents sont sauvegardés en JSON et rechargés entre deux exécutions, sans doublon.
+
+## Rapports
+
+Générés dans `out/` :
+
+- rapport CSV de supervision ;
+- rapport JSON des alertes et incidents ;
+- résumé texte en console : services indisponibles, IP suspectes, incidents ouverts, anomalies détectées.
+
+Des exemples de rapports sont fournis dans `docs/exemples/`.
+
+## Tests
+
+Lancer les tests automatisés :
+
+```bash
+python -m unittest discover -s tests
+```
+
+Le plan de tests complet (au moins 10 cas, dont 5 automatisés) et les résultats sont dans `docs/`.
+
+## Scénarios de recette
+
+- R1 avec événements à l'intérieur et à l'extérieur de la fenêtre temporelle
+- R2 avec succès après échecs, puis contre-exemple sans alerte
+- Fichier de logs vide et lignes malformées, sans arrêt brutal
+- Changement de seuil dans `config.json` sans modifier le code
+- Redémarrage du logiciel et retrouvailles des incidents et de leur historique
+- Inventaire vide : message explicite, bilan à zéro, pas de division par zéro
+- Fichier introuvable ou JSON invalide : erreur compréhensible, code de sortie non nul
+
+## Limites connues
+
+> _À compléter en fin de projet (ex. formats de logs non gérés, comportement sous Windows, contrôles TCP réels non implémentés)._
+
+## Sécurité et éthique
+
+- Aucun accès réseau offensif, aucune tentative d'authentification, aucun scan massif.
+- Contrôles TCP réels (facultatifs) uniquement sur des cibles de laboratoire ou expressément autorisées.
+- Données de démonstration **fictives** : aucun mot de passe, secret ou donnée personnelle réelle dans le dépôt.
+
+## Utilisation de l'IA
+
+L'utilisation d'outils d'IA générative est déclarée dans l'annexe de transparence (`docs/annexe_ia.md`) : outils utilisés, types d'aide, exemples de prompts et vérifications réalisées.
+
+## Licence
+
+Distribué sous licence **MIT**. Voir le fichier [LICENSE](LICENSE).
