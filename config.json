@@ -1,2 +1,16 @@
 {
+  "paths": {
+    "inventory": "data/inventaire.json",
+    "scenarios": "data/scenarios.json",
+    "logs": ["data/auth_ssh.txt"],
+    "incidents": "out/incidents.json",
+    "output_dir": "out"
+  },
+  "rules": {
+    "R1": { "max_failures": 5, "window_minutes": 10 },
+    "R2": { "min_failures": 3, "window_minutes": 10 }
+  },
+  "logs": {
+    "default_year": 2026
+  }
 }
