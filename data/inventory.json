@@ -1,0 +1,85 @@
+[
+  {
+    "id": "SRV-01",
+    "name": "web01",
+    "ip": "192.168.10.11",
+    "environment": "production",
+    "services": [
+      { "name": "ssh", "port": 22, "timeout": 3 },
+      { "name": "http", "port": 80, "timeout": 2 }
+    ]
+  },
+  {
+    "id": "SRV-02",
+    "name": "db01",
+    "ip": "192.168.10.12",
+    "environment": "production",
+    "services": [
+      { "name": "ssh", "port": 22, "timeout": 3 },
+      { "name": "mysql", "port": 3306, "timeout": 5 }
+    ]
+  },
+  {
+    "id": "SRV-03",
+    "name": "mail01",
+    "ip": "192.168.10.13",
+    "environment": "production",
+    "services": [
+      { "name": "smtp", "port": 25, "timeout": 4 },
+      { "name": "https", "port": 443, "timeout": 2 }
+    ]
+  },
+  {
+    "id": "SRV-04",
+    "name": "test01",
+    "ip": "192.168.20.21",
+    "environment": "test",
+    "services": [
+      { "name": "ssh", "port": 22, "timeout": 3 }
+    ]
+  },
+  {
+    "id": "SRV-05",
+    "name": "test02",
+    "ip": "192.168.20.22",
+    "environment": "test",
+    "services": [
+      { "name": "http", "port": 8080, "timeout": 2 }
+    ]
+  },
+  {
+    "id": "SRV-06",
+    "name": "ip-invalide",
+    "ip": "300.1.1.1",
+    "environment": "test",
+    "services": [
+      { "name": "ssh", "port": 22, "timeout": 3 }
+    ]
+  },
+  {
+    "id": "SRV-07",
+    "name": "port-invalide",
+    "ip": "192.168.20.23",
+    "environment": "test",
+    "services": [
+      { "name": "http", "port": 70000, "timeout": 2 }
+    ]
+  },
+  {
+    "id": "SRV-01",
+    "name": "id-en-double",
+    "ip": "192.168.20.24",
+    "environment": "production",
+    "services": [
+      { "name": "ssh", "port": 22, "timeout": 3 }
+    ]
+  },
+  {
+    "id": "SRV-09",
+    "name": "sans-ip",
+    "environment": "production",
+    "services": [
+      { "name": "ssh", "port": 22, "timeout": 3 }
+    ]
+  }
+]

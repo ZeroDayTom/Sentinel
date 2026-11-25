@@ -1,6 +1,6 @@
 {
   "paths": {
-    "inventory": "data/inventaire.json",
+    "inventory": "data/inventory.json",
     "scenarios": "data/scenarios.json",
     "logs": ["data/auth_ssh.txt"],
     "incidents": "out/incidents.json",

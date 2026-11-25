@@ -1,0 +1,26 @@
+Jeu de test : data/inventory.json
+=================================
+
+Le fichier explique chaque machine de l'inventaire et quels problemes sont simulée
+
+Machines valides (5) : elles doivent être chargées
+---------------------------------------------------
+SRV-01  web01   192.168.10.11  production  ssh:22, http:80
+SRV-02  db01    192.168.10.12  production  ssh:22, mysql:3306
+SRV-03  mail01  192.168.10.13  production  smtp:25, https:443
+SRV-04  test01  192.168.20.21  test        ssh:22
+SRV-05  test02  192.168.20.22  test        http:8080
+
+Machines piégées (4) : elles doivent être rejetées et apparaître dans les anomalies
+-----------------------------------------------------------------------------------
+SRV-06  ip-invalide    IP 300.1.1.1
+SRV-07  port-invalide  port 70000 hors de la plage de l'énoncé
+SRV-01  id-en-double   même id que web01 (la 1re machine SRV-01 reste valide)
+SRV-09  sans-ip        le champ "ip" est absent
+
+Résultat attendu après chargement
+---------------------------------
+- 5 machines valides, 4 anomalies
+- Filtre "production" : SRV-01, SRV-02, SRV-03
+- Filtre "test"       : SRV-04, SRV-05
+- Le programme ne plante pas et affiche la raison de chaque rejet
